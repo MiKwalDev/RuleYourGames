@@ -63,11 +63,11 @@ const Register = () => {
             src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
             alt="Rule Your Games"
           />
-          <h2 className="mt-10 text-center text-3xl font-bold leading-9 tracking-tight text-gray-100">
+          <h2 className="mt-5 text-center text-2xl font-bold leading-9 tracking-tight text-gray-100">
             S'inscrire
           </h2>
         </article>
-        <article className="mt-10 mx-auto w-4/6 lg:w-1/3">
+        <article className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
           {errors.length != 0 &&
             errors.map((error, key) => {
               return (

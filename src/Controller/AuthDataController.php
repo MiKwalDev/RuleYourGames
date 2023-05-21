@@ -7,13 +7,19 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/api', name: 'api_')]
-class ProfilController extends AbstractController
+class AuthDataController extends AbstractController
 {
-    #[Route('/profil', name: 'profil', methods: ['POST'])]
+    #[Route('/auth', name: 'auth', methods: ['POST'])]
     public function index(): Response
     {
         $user = $this->getUser();
-        
-        return !$user ? $this->json("Aucun utilisateur") : $this->json($user);
+
+        $auth = [
+            "email" => $user->getUserIdentifier(),
+            "username" => $user->getUsername(),
+            "roles" => $user->getRoles(),
+        ];
+
+        return $this->json($auth);
     }
 }

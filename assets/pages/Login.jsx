@@ -6,20 +6,23 @@ import SubmitField from "../components/SubmitField"
 import InputField from "../components/InputField"
 import axios from "axios"
 import { useNavigate, useSearchParams } from "react-router-dom"
-import jwtDecode from "jwt-decode"
+import { useAuth } from "../contexts/AuthContext"
 
 const Login = () => {
   const navigate = useNavigate()
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [message, setMessage] = useState(null)
   const [queryParamaters] = useSearchParams()
+  const {
+    setAuthUser,
+    isLoggedIn,
+    setIsLoggedIn
+  } = useAuth()
 
   useEffect(() => {
-    if (
-      localStorage.getItem("token") != "" &&
-      localStorage.getItem("token") != null
-    ) {
+    if (isLoggedIn) {
       navigate("/")
     }
   }, [])
@@ -37,18 +40,21 @@ const Login = () => {
       })
       .then((response) => {
         setIsSubmitting(false)
-        const token = response.data.token
-        const decodedToken = jwtDecode(token)
-        const authUser = {
-          username: decodedToken.username,
-          roles: decodedToken.roles
-        }
-        localStorage.setItem("token", token)
-        localStorage.setItem("auth", JSON.stringify(authUser))
-        navigate("/")
+        axios
+          .post("/api/auth")
+          .then((response) => {
+            localStorage.setItem("auth", JSON.stringify(response.data))
+            setAuthUser(response.data)
+            setIsLoggedIn(true)
+            navigate("/")
+          })
+          .catch((error) => {
+            console.log(error)
+          })
       })
       .catch((error) => {
         console.log(error)
+        error.response.data.code == 401 && setMessage("Identifiant ou mot de passe invalide")
         setPassword("")
       })
       setIsSubmitting(false)
@@ -64,11 +70,11 @@ const Login = () => {
             src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
             alt="Rule Your Games"
           />
-          <h2 className="mt-10 text-center text-3xl font-bold leading-9 tracking-tight text-gray-100">
+          <h2 className="mt-5 text-center text-2xl font-bold leading-9 tracking-tight text-gray-100">
             Connexion
           </h2>
         </article>
-        <article className="mt-10 mx-auto w-4/6 lg:w-1/3">
+        <article className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
           {queryParamaters.has("registersuccess") != "" && (
             <div className="flex">
               <small className="alert-success mx-auto text-center text-base">
@@ -80,6 +86,13 @@ const Login = () => {
             <div className="flex">
               <small className="alert-danger mx-auto text-center text-base">
                 Veuillez vous authentifier pour accéder à cette page
+              </small>
+            </div>
+          )}
+          {message && (
+            <div className="flex">
+              <small className="alert-danger mx-auto text-center text-base">
+                {message}
               </small>
             </div>
           )}
